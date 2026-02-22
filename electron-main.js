@@ -23,6 +23,9 @@ const serverPort = userPort !== null ? userPort : 8086;
 const userDataPath = app.getPath('userData');
 process.env.MESHCENTRAL_USERDATA = path.join(userDataPath, 'meshcentral-data');
 
+// Belt-and-suspenders: also signal via env var in case argv manipulation is shadowed by Electron internals
+process.env.MESHCENTRAL_LAUNCH = '1';
+
 // Rebuild process.argv with clean MeshCentral args
 const meshArgs = [];
 for (let i = 0; i < electronArgv.length; i++) {

@@ -610,8 +610,8 @@ function CreateMeshCentralServer(config, args) {
             }
         }
 
-        // If "--launch" is in the arguments, launch now
-        if (obj.args.launch) {
+        // If "--launch" is in the arguments, or running inside Electron (never spawn a child watchdog), launch now
+        if (obj.args.launch || (typeof process.versions.electron !== 'undefined')) {
             if (obj.args.vault) { obj.StartVault(); } else { obj.StartEx(); }
         } else {
             // if "--launch" is not specified, launch the server as a child process.
@@ -3115,13 +3115,15 @@ function CreateMeshCentralServer(config, args) {
         //obj.fs.writeFile("C:\\temp\\meshcmd.js", obj.defaultMeshCmd.substring(4)); // DEBUG, Write merged meshcmd.js to file
         if (func != null) { func(true); }
 
-        // Monitor for changes in meshcmd.js
+        // Monitor for changes in meshcmd.js (skip if path is inside an asar bundle — fs.watch can't watch virtual asar paths)
         if (obj.updateMeshCmdTimer === 'notset') {
             obj.updateMeshCmdTimer = null;
-            obj.fs.watch(meshcmdPath, function (eventType, filename) {
-                if (obj.updateMeshCmdTimer != null) { clearTimeout(obj.updateMeshCmdTimer); obj.updateMeshCmdTimer = null; }
-                obj.updateMeshCmdTimer = setTimeout(function () { obj.updateMeshCmd(); }, 5000);
-            });
+            if (meshcmdPath.indexOf('.asar') === -1) {
+                obj.fs.watch(meshcmdPath, function (eventType, filename) {
+                    if (obj.updateMeshCmdTimer != null) { clearTimeout(obj.updateMeshCmdTimer); obj.updateMeshCmdTimer = null; }
+                    obj.updateMeshCmdTimer = setTimeout(function () { obj.updateMeshCmd(); }, 5000);
+                });
+            }
         }
     };
 
