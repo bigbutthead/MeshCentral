@@ -16,7 +16,7 @@
   "homepage": "https://meshcentral.com",
   "description": "Web based remote computer management server",
   "author": "Ylian Saint-Hilaire <ylianst@gmail.com>",
-  "main": "meshcentral.js",
+  "main": "electron-main.js",
   "bin": {
     "meshcentral": "bin/meshcentral"
   },
@@ -63,5 +63,128 @@
     "type": "git",
     "url": "https://github.com/Ylianst/MeshCentral.git"
   },
-  "readme": "readme.md"
+  "readme": "readme.md",
+  "devDependencies": {
+    "@yao-pkg/pkg": "^5.11.5",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "pkg meshcentral.js",
+    "build:linux-x64": "pkg meshcentral.js --targets node20-linux-x64 --output dist/meshcentral-linux-x64",
+    "build:linux-arm64": "pkg meshcentral.js --targets node20-linux-arm64 --output dist/meshcentral-linux-arm64",
+    "build:win-x64": "pkg meshcentral.js --targets node20-win-x64 --output dist/meshcentral-win-x64.exe",
+    "build:macos-x64": "pkg meshcentral.js --targets node20-macos-x64 --output dist/meshcentral-macos-x64",
+    "build:macos-arm64": "pkg meshcentral.js --targets node20-macos-arm64 --output dist/meshcentral-macos-arm64",
+    "electron:build:win": "electron-builder --win",
+    "electron:build:linux": "electron-builder --linux",
+    "electron:build:mac": "electron-builder --mac",
+    "electron:build:all": "electron-builder --win --linux --mac"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*",
+      "views/**/*",
+      "emails/**/*",
+      "translate/**/*",
+      "agents/**/*",
+      "package.json",
+      "sample-config.json",
+      "sample-config-advanced.json",
+      "meshcentral-config-schema.json"
+    ],
+    "targets": [
+      "node20-linux-x64",
+      "node20-linux-arm64",
+      "node20-win-x64",
+      "node20-macos-x64",
+      "node20-macos-arm64"
+    ],
+    "outputPath": "dist"
+  },
+  "build": {
+    "appId": "com.meshcentral.app",
+    "productName": "MeshCentral",
+    "directories": { "output": "dist-electron" },
+    "files": [
+      "electron-main.js",
+      "meshcentral.js",
+      "common.js",
+      "webserver.js",
+      "redirserver.js",
+      "mpsserver.js",
+      "db.js",
+      "certoperations.js",
+      "meshaccelerator.js",
+      "pass.js",
+      "exeHandler.js",
+      "letsencrypt.js",
+      "meshagent.js",
+      "meshmail.js",
+      "meshrelay.js",
+      "meshscanner.js",
+      "meshuser.js",
+      "multiserver.js",
+      "monitoring.js",
+      "mqttbroker.js",
+      "meshipkvm.js",
+      "meshdesktopmultiplex.js",
+      "meshdevicefile.js",
+      "meshsms.js",
+      "meshmessaging.js",
+      "firebase.js",
+      "interceptor.js",
+      "crowdsec.js",
+      "apprelays.js",
+      "authenticode.js",
+      "amtmanager.js",
+      "amtscanner.js",
+      "amtscript.js",
+      "amtevents.js",
+      "amt-ider.js",
+      "amtprovisioningserver.js",
+      "mcrec.js",
+      "meshbot.js",
+      "meshctrl.js",
+      "package.json",
+      "sample-config.json",
+      "sample-config-advanced.json",
+      "meshcentral-config-schema.json",
+      "amt/**/*",
+      "rdp/**/*",
+      "views/**/*",
+      "emails/**/*",
+      "translate/**/*",
+      "public/**/*",
+      "node_modules/**/*",
+      "!node_modules/electron/**/*",
+      "!node_modules/electron-builder/**/*",
+      "!node_modules/@yao-pkg/**/*"
+    ],
+    "asarUnpack": [
+      "agents/**/*",
+      "node_modules/**/*.node"
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "public/favicon-303x303.png"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }],
+      "icon": "public/favicon-303x303.png",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": [{ "target": "AppImage", "arch": ["x64"] }],
+      "icon": "public/favicon-303x303.png",
+      "category": "Network"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
 }

@@ -82,7 +82,29 @@ function CreateMeshCentralServer(config, args) {
     getCurrentVersion();
 
     // Setup the default configuration and files paths
-    if ((__dirname.endsWith('/node_modules/meshcentral')) || (__dirname.endsWith('\\node_modules\\meshcentral')) || (__dirname.endsWith('/node_modules/meshcentral/')) || (__dirname.endsWith('\\node_modules\\meshcentral\\'))) {
+    if (typeof process.pkg !== 'undefined') {
+        // Running as a pkg standalone binary — use the directory of the executable
+        const execDir = obj.path.dirname(process.execPath);
+        obj.parentpath = execDir;
+        obj.datapath = obj.path.join(execDir, 'meshcentral-data');
+        obj.filespath = obj.path.join(execDir, 'meshcentral-files');
+        obj.backuppath = obj.path.join(execDir, 'meshcentral-backups');
+        obj.recordpath = obj.path.join(execDir, 'meshcentral-recordings');
+        obj.webViewsPath = obj.path.join(__dirname, 'views');
+        obj.webPublicPath = obj.path.join(__dirname, 'public');
+        obj.webEmailsPath = obj.path.join(__dirname, 'emails');
+    } else if (typeof process.versions.electron !== 'undefined') {
+        // Running inside Electron — use OS userData dir (set by electron-main.js via env var)
+        const electronDataPath = process.env.MESHCENTRAL_USERDATA || obj.path.join(__dirname, '../meshcentral-data');
+        obj.parentpath = __dirname;
+        obj.datapath = electronDataPath;
+        obj.filespath = obj.path.join(electronDataPath, '..', 'meshcentral-files');
+        obj.backuppath = obj.path.join(electronDataPath, '..', 'meshcentral-backups');
+        obj.recordpath = obj.path.join(electronDataPath, '..', 'meshcentral-recordings');
+        obj.webViewsPath = obj.path.join(__dirname, 'views');
+        obj.webPublicPath = obj.path.join(__dirname, 'public');
+        obj.webEmailsPath = obj.path.join(__dirname, 'emails');
+    } else if ((__dirname.endsWith('/node_modules/meshcentral')) || (__dirname.endsWith('\\node_modules\\meshcentral')) || (__dirname.endsWith('/node_modules/meshcentral/')) || (__dirname.endsWith('\\node_modules\\meshcentral\\'))) {
         obj.parentpath = obj.path.join(__dirname, '../..');
         obj.datapath = obj.path.join(__dirname, '../../meshcentral-data');
         obj.filespath = obj.path.join(__dirname, '../../meshcentral-files');
@@ -4103,7 +4125,11 @@ function getConfig(createSampleConfig) {
     // Figure out the datapath location
     var i, datapath = null;
     const fs = require('fs'), path = require('path'), args = require('minimist')(process.argv.slice(2));
-    if ((__dirname.endsWith('/node_modules/meshcentral')) || (__dirname.endsWith('\\node_modules\\meshcentral')) || (__dirname.endsWith('/node_modules/meshcentral/')) || (__dirname.endsWith('\\node_modules\\meshcentral\\'))) {
+    if (typeof process.pkg !== 'undefined') {
+        datapath = path.join(path.dirname(process.execPath), 'meshcentral-data');
+    } else if (typeof process.versions.electron !== 'undefined') {
+        datapath = process.env.MESHCENTRAL_USERDATA || path.join(__dirname, '../meshcentral-data');
+    } else if ((__dirname.endsWith('/node_modules/meshcentral')) || (__dirname.endsWith('\\node_modules\\meshcentral')) || (__dirname.endsWith('/node_modules/meshcentral/')) || (__dirname.endsWith('\\node_modules\\meshcentral\\'))) {
         datapath = path.join(__dirname, '../../meshcentral-data');
     } else {
         datapath = path.join(__dirname, '../meshcentral-data');
